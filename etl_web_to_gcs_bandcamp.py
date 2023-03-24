@@ -86,22 +86,11 @@ def etl_web_to_gcs(file: str):
     duduplicate(path_file)
 
 
-# Define download progress hook
-def download_progress_hook(block_num, block_size, total_size, progress_bar=None):
-    if not progress_bar:
-        progress_bar = tqdm(total=total_size, unit="B", unit_scale=True)
-    downloaded = block_num * block_size
-    progress_bar.update(downloaded - progress_bar.n)
-    if downloaded >= total_size:
-        progress_bar.close()
-    return progress_bar
-
-
 @task(log_prints=True, name="fetch_data", retries=3)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
-    file_folder = urlretrieve(url, folder_name, reporthook=download_progress_hook)
+    file_folder = urlretrieve(url, folder_name)
     if folder_name.endswith(".zip"):
         zip_file = ZipFile(folder_name)
         folder_name_ = os.path.commonprefix(zip_file.namelist()).strip("/")
