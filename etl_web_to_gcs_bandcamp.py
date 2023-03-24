@@ -100,7 +100,7 @@ def download_progress_hook(block_num, block_size, total_size):
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
-    file_folder = urlretrieve(url, folder_name, reporthook=download_progress_hook)
+    file_folder = urlretrieve(url, folder_name)
     if folder_name.endswith(".zip"):
         zip_file = ZipFile(folder_name)
         folder_name_ = os.path.commonprefix(zip_file.namelist()).strip("/")
@@ -136,5 +136,4 @@ def etl_parent_web_gcs():
 
 # Run Main
 if __name__ == "__main__":
-    progress_bar = None
     etl_parent_web_gcs()
