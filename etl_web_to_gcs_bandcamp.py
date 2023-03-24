@@ -1,9 +1,8 @@
-from distributed import Client
-
-client = Client()
+# from distributed import Client
+# client = Client()
 import pandas as pd
 
-# import modin.pandas as pd
+import modin.pandas as pd
 import os
 import json
 from pathlib import Path
@@ -129,3 +128,7 @@ def etl_parent_web_gcs():
             print("Running: {f}")
             etl_web_to_gcs(f)
             print("Done uploading {f} to GCS")
+
+
+if __name__ == "__main__":
+    etl_parent_web_gcs()
