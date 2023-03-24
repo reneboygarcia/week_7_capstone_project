@@ -99,10 +99,8 @@ def download_progress_hook(block_num, block_size, total_size):
 @task(log_prints=True, name="fetch_data")
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
-    # This is global parameter
-    progress_bar = None
     folder_name = url.split("/")[-1].split("?")[0]
-    file_folder = urlretrieve(url, folder_name, reporthook=download_progress_hook)
+    file_folder = urlretrieve(url, folder_name)
     if folder_name.endswith(".zip"):
         unzipped_folder = ZipFile(folder_name).extractall()
         print(f"Download Complete..extracted zip file")
