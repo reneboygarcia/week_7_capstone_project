@@ -43,7 +43,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     path_name = directory / f"{_file_name}.parquet"
     try:
         os.makedirs(directory)
-        pd.to_parquet(path_name, compression="gzip", index=False)
+        df.to_parquet(path_name, compression="gzip", index=False)
     except OSError as error:
         print(error)
     return path_name
@@ -96,15 +96,18 @@ def download_progress_hook(block_num, block_size, total_size):
         progress_bar = None
 
 
-@task(log_prints=True, name="fetch_data")
+@task(log_prints=True, name="fetch_data", retries=3)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
-    file_folder = urlretrieve(url, folder_name)
+    file_folder = urlretrieve(url, folder_name, reporthook=download_progress_hook)
     if folder_name.endswith(".zip"):
-        unzipped_folder = ZipFile(folder_name).extractall()
+        zip_file = ZipFile(folder_name)
+        folder_name_ = os.path.commonprefix(zip_file.namelist()).strip("/")
+        zip_file.extractall()
         print(f"Download Complete..extracted zip file")
-        return unzipped_folder
+        print(f"Extracted folder path: {folder_name_}")
+        return folder_name_
     print(f"Download Complete..")
     return file_folder
 
@@ -122,13 +125,16 @@ def etl_parent_web_gcs():
     file_folder = fetch_data(dataset_url)
     # Loop through the files then run etl_web_to_gcs
     print("Running etl_web_to_gcs...this will take sometime..grab some coffee or tea")
-    for f in os.listdir(file_folder):
-        if f.endswith(".json"):
-            print("Running: {f}")
-            etl_web_to_gcs(f)
-            print("Done uploading {f} to GCS")
+    for file in os.listdir(file_folder)[:1]:
+        if file.endswith(".json"):
+            file_path = os.path.join(file_folder, file)
+            print(f"Running: {file}")
+            etl_web_to_gcs(file_path)
+            print(f"Done uploading {file} to GCS")
+    print("All files are Uploaded")
 
 
 # Run Main
 if __name__ == "__main__":
+    progress_bar = None
     etl_parent_web_gcs()
