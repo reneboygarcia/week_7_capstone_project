@@ -11,8 +11,6 @@ from tqdm import tqdm
 from zipfile import ZipFile
 from google.cloud import bigquery
 from prefect import task, flow
-from prefect.tasks import task_input_hash
-from datetime import timedelta
 from prefect_gcp.cloud_storage import GcsBucket
 
 
@@ -99,13 +97,7 @@ def download_progress_hook(block_num, block_size, total_size, progress_bar=None)
     return progress_bar
 
 
-@task(
-    log_prints=True,
-    name="fetch_data",
-    retries=3,
-    cache_key_fn=task_input_hash,
-    cache_expiration=timedelta(days=1),
-)
+@task(log_prints=True, name="fetch_data", retries=3)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
