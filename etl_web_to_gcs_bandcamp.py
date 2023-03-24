@@ -32,7 +32,7 @@ def read_df(file: str) -> pd.DataFrame:
 # Seq 2-Define a function to tweak the data frame
 def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows: {df.shape[0]}")
-    df_ = df
+    df_ = df.drop(columns=["albumRelease", "@type", "image", "@id", "@context"])
     return df_
 
 
@@ -44,7 +44,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     path_name = directory / f"{_file_name}.parquet"
     try:
         os.makedirs(directory)
-        df.to_parquet(path_name, compression="gzip", index=False)
+        df.to_parquet(path_name, compression="snappy")
     except OSError as error:
         print(error)
     return path_name
@@ -115,7 +115,7 @@ def etl_parent_web_gcs():
     file_folder = fetch_data(dataset_url)
     # Loop through the files then run etl_web_to_gcs
     print("Running etl_web_to_gcs...this will take sometime..grab some coffee or tea")
-    for file in os.listdir(file_folder)[:1]:
+    for file in os.listdir(file_folder):
         if file.endswith(".json"):
             file_path = os.path.join(file_folder, file)
             print(f"Running: {file}")
