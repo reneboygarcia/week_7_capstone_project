@@ -24,7 +24,7 @@ def read_df(file: str) -> pd.DataFrame:
     with open(file) as data_file:
         data = json.load(data_file)
         df = pd.read_json(data)
-        df = pd.json_normalize(df, sep="_")
+        df = pd.json_normalize(df.to_dict("records"), sep="_")
         return df
 
 
@@ -79,7 +79,7 @@ def etl_web_to_gcs(file: str):
     # Seq 2 -Tweak df
     df_ = tweak_df(df)
     # Seq 3 -Set a path this will be use to convert file to parquet
-    path_file = write_local(df, file)
+    path_file = write_local(df_, file)
     # Seq 4-Upload local file to GCS Bucket
     write_to_gcs(path_file)
     # Seq 5- Remove duplicate
