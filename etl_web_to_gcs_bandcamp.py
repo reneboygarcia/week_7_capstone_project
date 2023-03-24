@@ -1,7 +1,9 @@
 from distributed import Client
+
 client = Client()
-# import pandas as pd
-import modin.pandas as pd
+import pandas as pd
+
+# import modin.pandas as pd
 import os
 import json
 from pathlib import Path
@@ -15,6 +17,7 @@ from prefect_gcp.cloud_storage import GcsBucket
 pd.set_option("display.max_columns", None)
 print("Setup Complete")
 
+
 @task(log_prints=True, name="read_df")
 # Seq 1-Define a function to convert the downloaded file to data frame
 def read_df(file: str) -> pd.DataFrame:
@@ -24,12 +27,14 @@ def read_df(file: str) -> pd.DataFrame:
         df = pd.json_normalize(df, sep="_")
         return df
 
+
 @task(log_prints=True, name="tweak_df")
 # Seq 2-Define a function to tweak the data frame
 def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows: {df.shape[0]}")
     df_ = df
     return df_
+
 
 @task(log_prints=True, name="write_local")
 # Seq 3-Define a function to set a path for GCS storage and for local file
@@ -44,6 +49,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
         print(error)
     return path_name
 
+
 @task(log_prints=True, name="write_to_gcs")
 # Seq 4-Define a function to upload local file to GCS Bucket
 def write_to_gcs(path: Path) -> None:
@@ -51,6 +57,7 @@ def write_to_gcs(path: Path) -> None:
     gcs_block.upload_from_path(from_path=path, to_path=path)
     print("Hooray, we uploaded a huge file in GCS")
     return
+
 
 @task(log_prints=True, name="Remove duplicate")
 # Seq 5-Delete local file and its directory
@@ -62,6 +69,7 @@ def duduplicate(path: Path) -> None:
         print("Successfully deleted directory and its files")
     except OSError as error:
         print(f"Unable to find directory: {error}")
+
 
 @flow(log_prints=True, name="etl_web_to_gcs")
 # Define ETL from web to gcs:
@@ -88,6 +96,7 @@ def download_progress_hook(block_num, block_size, total_size):
     if downloaded >= total_size:
         progress_bar = None
 
+
 @task(log_prints=True, name="fetch_data")
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
@@ -100,9 +109,10 @@ def fetch_data(url: str):
     print(f"Download Complete..")
     return file_folder
 
+
 @flow(log_prints=True, name="el_parent_web_gcs")
 # Define a parent ETL to download the files
-def el_parent_web_gcs():
+def etl_parent_web_gcs():
     # Parameters
     dataset_url = (
         "https://www.dropbox.com/s/a1kl5e35j4o53mz/bandcamp-items-json.zip?dl=1"
