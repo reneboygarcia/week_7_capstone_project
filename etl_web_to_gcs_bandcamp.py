@@ -11,7 +11,10 @@ from tqdm import tqdm
 from zipfile import ZipFile
 from google.cloud import bigquery
 from prefect import task, flow
+from prefect.tasks import task_input_hash
+from datetime import timedelta
 from prefect_gcp.cloud_storage import GcsBucket
+
 
 pd.set_option("display.max_columns", None)
 print("Setup Complete")
@@ -86,21 +89,27 @@ def etl_web_to_gcs(file: str):
 
 
 # Define download progress hook
-def download_progress_hook(block_num, block_size, total_size):
-    global progress_bar
+def download_progress_hook(block_num, block_size, total_size, progress_bar=None):
     if not progress_bar:
         progress_bar = tqdm(total=total_size, unit="B", unit_scale=True)
     downloaded = block_num * block_size
     progress_bar.update(downloaded - progress_bar.n)
     if downloaded >= total_size:
-        progress_bar = None
+        progress_bar.close()
+    return progress_bar
 
 
-@task(log_prints=True, name="fetch_data", retries=3)
+@task(
+    log_prints=True,
+    name="fetch_data",
+    retries=3,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(days=1),
+)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
-    file_folder = urlretrieve(url, folder_name)
+    file_folder = urlretrieve(url, folder_name, reporthook=download_progress_hook)
     if folder_name.endswith(".zip"):
         zip_file = ZipFile(folder_name)
         folder_name_ = os.path.commonprefix(zip_file.namelist()).strip("/")
