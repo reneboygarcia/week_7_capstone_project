@@ -16,7 +16,7 @@ gcs_git_dep = Deployment.build_from_flow(
 
 print("Successfully deployed Bandcamp Github Block. Check app.prefect.cloud")
 
-# execute
+# Run main
 if __name__ == "__main__":
     gcs_git_dep.apply()
 

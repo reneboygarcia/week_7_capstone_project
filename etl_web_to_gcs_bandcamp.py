@@ -130,5 +130,6 @@ def etl_parent_web_gcs():
             print("Done uploading {f} to GCS")
 
 
+# Run Main
 if __name__ == "__main__":
     etl_parent_web_gcs()
