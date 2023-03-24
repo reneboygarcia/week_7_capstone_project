@@ -21,5 +21,5 @@ if __name__ == "__main__":
     gcs_git_dep.apply()
 
 # to deploy
-# prefect deployment run el_parent_web_gcs/bandcamp-flow
+# prefect deployment run etl_parent_web_gcs/bandcamp-flow
 #  --params '{"years":[2019, 2020], "months": [4, 5, 6, 7, 8, 9, 10, 11, 12, 2, 3, 1]}'
