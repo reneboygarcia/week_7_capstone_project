@@ -9,7 +9,7 @@ github_block = GitHub.load("bandcamp-github-block")
 
 # https://docs.prefect.io/api-ref/prefect/deployments/#prefect.deployments.Deployment.build_from_flow
 gcs_git_dep = Deployment.build_from_flow(
-    flow="etl-parent-web-gcs",
+    flow=etl_parent_web_gcs,
     name="bandcamp-flow",
     storage=github_block,
 )
