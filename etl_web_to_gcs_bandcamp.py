@@ -119,8 +119,6 @@ def etl_parent_web_gcs():
 
     # Execution
     # Seq 0 -Download file folder from web
-    # This is global parameter
-    progress_bar = None
     file_folder = fetch_data(dataset_url)
     # Loop through the files then run etl_web_to_gcs
     print("Running etl_web_to_gcs...this will take sometime..grab some coffee or tea")
