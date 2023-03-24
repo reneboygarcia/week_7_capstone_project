@@ -42,7 +42,7 @@ def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
 # Seq 3-Define a function to set a path for GCS storage and for local file
 def write_local(df: pd.DataFrame, filename: str) -> Path:
     directory = Path("bandcamp")
-    _file_name = filename.split(".")[0]
+    _file_name = filename.split("/")[-1].split(".")[0]
     path_name = directory / f"{_file_name}.parquet"
     try:
         os.makedirs(directory)
