@@ -1,8 +1,8 @@
 # from distributed import Client
 # client = Client()
-# import pandas as pd
+import pandas as pd
 
-import modin.pandas as pd
+# import modin.pandas as pd
 import os
 import json
 from pathlib import Path
@@ -32,7 +32,9 @@ def read_df(file: str) -> pd.DataFrame:
 # Seq 2-Define a function to tweak the data frame
 def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows: {df.shape[0]}")
-    df_ = df.drop(columns=["albumRelease", "@type", "image", "@id", "@context"])
+    df_ = df.drop(
+        columns=["albumRelease", "@type", "image", "@id", "@context", "@graph"]
+    )
     return df_
 
 
