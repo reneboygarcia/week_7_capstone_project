@@ -74,7 +74,7 @@ def duduplicate(path: Path) -> None:
         print(f"Unable to find directory: {error}")
 
 
-@flow(log_prints=True, name="etl_web_to_gcs")
+@flow(log_prints=True, name="etl_web_to_gcs", retries=3)
 # Define ETL from web to gcs:
 def etl_web_to_gcs(file: str):
     # Seq 1 -Read file
