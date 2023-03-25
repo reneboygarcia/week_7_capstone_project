@@ -33,7 +33,8 @@ def read_df(file: str) -> pd.DataFrame:
 def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows: {df.shape[0]}")
     df_ = df.drop(
-        columns=["albumRelease", "@type", "image", "@id", "@context", "@graph"]
+        columns=["albumRelease", "@type", "image", "@id", "@context", "@graph"],
+        errors="ignore",
     )
     return df_
 
