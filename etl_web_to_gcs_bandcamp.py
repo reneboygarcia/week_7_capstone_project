@@ -95,9 +95,9 @@ def etl_web_to_gcs(file: str):
     log_prints=True,
     name="fetch_data",
     retries=3,
-    cache_key_fn=task_input_hash,
-    cache_expiration=timedelta(days=1),
 )
+# cache_key_fn=task_input_hash,
+# cache_expiration=timedelta(days=1)
 # The cache will allow us to run again the pipeline without downloading
 # all the files
 # Seq 0 -Download file folder from web
