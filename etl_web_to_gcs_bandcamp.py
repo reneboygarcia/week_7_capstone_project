@@ -53,6 +53,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
         directory.mkdir()
         print("Converting json file to parquet....")
         df.to_parquet(path_name, compression="snappy")
+        print("Done converting to parquet....")
     except OSError as error:
         print(error)
     return path_name
