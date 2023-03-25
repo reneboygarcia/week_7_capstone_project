@@ -95,9 +95,9 @@ def etl_web_to_gcs(file: str):
     log_prints=True,
     name="fetch_data",
     retries=3,
-    cache_key_fn=task_input_hash,
-    cache_expiration=timedelta(days=1),
 )
+# cache_key_fn=task_input_hash,
+# cache_expiration=timedelta(days=1)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
