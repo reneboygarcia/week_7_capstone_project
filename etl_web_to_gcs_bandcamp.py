@@ -34,6 +34,8 @@ def read_df(file: str) -> pd.DataFrame:
 # Seq 2-Define a function to tweak the data frame
 def tweak_df(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Number of rows: {df.shape[0]}")
+    df["datePublished"] = pd.to_datetime(df["datePublished"], errors="coerce")
+    df["dateModified"] = pd.to_datetime(df["dateModified"], errors="coerce")
     df_ = df.drop(
         columns=["albumRelease", "@type", "image", "@id", "@context", "@graph"],
         errors="ignore",

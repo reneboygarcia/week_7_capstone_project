@@ -25,9 +25,9 @@ def deduplicate_data(num: int):
     client = get_bigquery_client()
 
     query_dedup = f"CREATE OR REPLACE TABLE \
-                        `dtc-de-2023.bandcamp.albums-full-info-{num}`  AS ( \
+                        `dtc-de-2023.stg_bandcamp.albums-full-info-{num}`  AS ( \
                             SELECT DISTINCT * \
-                            FROM `dtc-de-2023.bandcamp.albums-full-info-{num}` \
+                            FROM `dtc-de-2023.stg_bandcamp.albums-full-info-{num}` \
                             )"
 
     # limit query to 10GB
@@ -51,7 +51,7 @@ def deduplicate_data(num: int):
 @flow(log_prints=True, name="etl-gcs-to-bq")
 def etl_gcs_to_bq(file_num: int):
     client = get_bigquery_client()
-    table_id = f"dtc-de-2023.bandcamp.albums-full-info-{file_num}"
+    table_id = f"dtc-de-2023.stg_bandcamp.albums-full-info-{file_num}"
 
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.PARQUET,
