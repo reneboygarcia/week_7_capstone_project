@@ -51,6 +51,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     path_name = directory / f"{_file_name}.parquet"
     try:
         directory.mkdir()
+        print("Converting json file to parquet....")
         df.to_parquet(path_name, compression="snappy")
     except OSError as error:
         print(error)
