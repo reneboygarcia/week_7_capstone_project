@@ -11,6 +11,8 @@ from tqdm import tqdm
 from zipfile import ZipFile
 from google.cloud import bigquery
 from prefect import task, flow
+from prefect.tasks import task_input_hash
+from datetime import timedelta
 from prefect_gcp.cloud_storage import GcsBucket
 
 
@@ -53,7 +55,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     return path_name
 
 
-@task(log_prints=True, name="write_to_gcs", retries=3)
+@task(log_prints=True, name="write_to_gcs", retries=3, retry_delay_seconds=20)
 # Seq 4-Define a function to upload local file to GCS Bucket
 def write_to_gcs(path: Path) -> None:
     gcs_block = GcsBucket.load("prefect-gcs-block-bandcamp")
@@ -89,7 +91,13 @@ def etl_web_to_gcs(file: str):
     duduplicate(path_file)
 
 
-@task(log_prints=True, name="fetch_data", retries=3)
+@task(
+    log_prints=True,
+    name="fetch_data",
+    retries=3,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(days=1),
+)
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
