@@ -46,7 +46,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     _file_name = filename.split("/")[-1].split(".")[0]
     path_name = directory / f"{_file_name}.parquet"
     try:
-        os.makedirs(directory)
+        directory.mkdir()
         df.to_parquet(path_name, compression="snappy")
     except OSError as error:
         print(error)
@@ -74,7 +74,7 @@ def duduplicate(path: Path) -> None:
         print(f"Unable to find directory: {error}")
 
 
-@flow(log_prints=True, name="etl_web_to_gcs", retries=3)
+@flow(log_prints=True, name="etl_web_to_gcs")
 # Define ETL from web to gcs:
 def etl_web_to_gcs(file: str):
     # Seq 1 -Read file
