@@ -114,11 +114,11 @@ def etl_gcs_to_bq(file_num: int):
 # Parent flow ETL
 @flow(log_prints=True, name="etl-parent-to-bq")
 def etl_parent_bq_flow(file_num_list: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]):
-    for num in file_num_list:
+    for file_num in file_num_list:
         etl_gcs_to_bq(file_num)
 
 
-# run main
+# Run main
 if __name__ == "__main__":
     file_num_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
