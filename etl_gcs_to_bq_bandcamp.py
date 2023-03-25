@@ -49,9 +49,9 @@ def deduplicate_data(num: int):
 
 # Upload data from GCS to BigQuery
 @flow(log_prints=True, name="etl-gcs-to-bq")
-def etl_gcs_to_bq(num: int):
+def etl_gcs_to_bq(file_num: int):
     client = get_bigquery_client()
-    table_id = f"dtc-de-2023.bandcamp.albums-full-info-{num}"
+    table_id = f"dtc-de-2023.bandcamp.albums-full-info-{file_num}"
 
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.PARQUET,
@@ -99,7 +99,7 @@ def etl_gcs_to_bq(num: int):
             bigquery.SchemaField("byArtist", "FLOAT", mode="NULLABLE"),
         ],
     )
-    uri = f"gs://ny_taxi_bucket_de_2023/2019/fhv_tripdata_{year}-{month:02}.parquet"
+    uri = f"gs://prefect-gcs-bucket-bandcamp/albums-full-info-{file_num}"
 
     load_job = client.load_table_from_uri(
         uri, table_id, job_config=job_config
@@ -113,16 +113,13 @@ def etl_gcs_to_bq(num: int):
 
 # Parent flow ETL
 @flow(log_prints=True, name="etl-parent-to-bq")
-def etl_parent_bq_flow(
-    year: int = 2019, months: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-):
-    for month in months:
-        etl_gcs_to_bq(year, month)
+def etl_parent_bq_flow(file_num_list: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]):
+    for num in file_num_list:
+        etl_gcs_to_bq(file_num)
 
 
 # run main
 if __name__ == "__main__":
-    year = 2019
-    months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    file_num_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-    etl_parent_bq_flow(year, months)
+    etl_parent_bq_flow(file_num_list)
