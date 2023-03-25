@@ -52,7 +52,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     return path_name
 
 
-@task(log_prints=True, name="write_to_gcs")
+@task(log_prints=True, name="write_to_gcs", retries=3)
 # Seq 4-Define a function to upload local file to GCS Bucket
 def write_to_gcs(path: Path) -> None:
     gcs_block = GcsBucket.load("prefect-gcs-block-bandcamp")
