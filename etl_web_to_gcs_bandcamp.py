@@ -55,7 +55,7 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     return path_name
 
 
-@task(log_prints=True, name="write_to_gcs", retries=3, retry_delay_seconds=20)
+@task(log_prints=True, name="write_to_gcs", retries=3, retry_delay_seconds=30)
 # Seq 4-Define a function to upload local file to GCS Bucket
 def write_to_gcs(path: Path) -> None:
     gcs_block = GcsBucket.load("prefect-gcs-block-bandcamp")
@@ -64,19 +64,19 @@ def write_to_gcs(path: Path) -> None:
     return
 
 
-@task(log_prints=True, name="Remove duplicate")
-# Seq 5-Delete local file and its directory
-def duduplicate(path: Path) -> None:
-    try:
-        path.unlink()
-        full_path = path.resolve()
-        full_path.parent.rmdir()
-        print("Successfully deleted directory and its files")
-    except OSError as error:
-        print(f"Unable to find directory: {error}")
+# @task(log_prints=True, name="Remove duplicate")
+# # Seq 5-Delete local file and its directory
+# def duduplicate(path: Path) -> None:
+#     try:
+#         path.unlink()
+#         full_path = path.resolve()
+#         full_path.parent.rmdir()
+#         print("Successfully deleted directory and its files")
+#     except OSError as error:
+#         print(f"Unable to find directory: {error}")
 
 
-@flow(log_prints=True, name="etl_web_to_gcs")
+@flow(log_prints=True, name="etl_web_to_gcs", retries=3)
 # Define ETL from web to gcs:
 def etl_web_to_gcs(file: str):
     # Seq 1 -Read file
@@ -88,16 +88,18 @@ def etl_web_to_gcs(file: str):
     # Seq 4-Upload local file to GCS Bucket
     write_to_gcs(path_file)
     # Seq 5- Remove duplicate
-    duduplicate(path_file)
+    # duduplicate(path_file)
 
 
 @task(
     log_prints=True,
     name="fetch_data",
     retries=3,
+    cache_key_fn=task_input_hash,
+    cache_expiration=timedelta(days=1),
 )
-# cache_key_fn=task_input_hash,
-# cache_expiration=timedelta(days=1)
+# The cache will allow us to run again the pipeline without downloading
+# all the files
 # Seq 0 -Download file folder from web
 def fetch_data(url: str):
     folder_name = url.split("/")[-1].split("?")[0]
