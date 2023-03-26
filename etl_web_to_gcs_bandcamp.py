@@ -50,7 +50,8 @@ def write_local(df: pd.DataFrame, filename: str) -> Path:
     _file_name = filename.split("/")[-1].split(".")[0]
     path_name = directory / f"{_file_name}.parquet"
     try:
-        directory.mkdir()
+        os.makedirs(directory, exist_ok=True)
+        # directory.mkdir()
         print("Converting json file to parquet....")
         df.to_parquet(path_name, compression="snappy")
         print("Done converting to parquet....")
@@ -68,19 +69,19 @@ def write_to_gcs(path: Path) -> None:
     return
 
 
-# @task(log_prints=True, name="Remove duplicate")
-# # Seq 5-Delete local file and its directory
-# def duduplicate(path: Path) -> None:
-#     try:
-#         path.unlink()
-#         full_path = path.resolve()
-#         full_path.parent.rmdir()
-#         print("Successfully deleted directory and its files")
-#     except OSError as error:
-#         print(f"Unable to find directory: {error}")
+@task(log_prints=True, name="Remove duplicate")
+# Seq 5-Delete local file and its directory
+def duduplicate(path: Path) -> None:
+    try:
+        path.unlink()
+        full_path = path.resolve()
+        full_path.parent.rmdir()
+        print("Successfully deleted directory and its files")
+    except OSError as error:
+        print(f"Unable to find directory: {error}")
 
 
-@flow(log_prints=True, name="etl_web_to_gcs", retries=3)
+@flow(log_prints=True, name="etl_web_to_gcs", retries=1)
 # Define ETL from web to gcs:
 def etl_web_to_gcs(file: str):
     # Seq 1 -Read file
@@ -91,8 +92,6 @@ def etl_web_to_gcs(file: str):
     path_file = write_local(df_, file)
     # Seq 4-Upload local file to GCS Bucket
     write_to_gcs(path_file)
-    # Seq 5- Remove duplicate
-    # duduplicate(path_file)
 
 
 @task(log_prints=True, name="fetch_data", retries=3)
@@ -134,6 +133,9 @@ def etl_parent_web_gcs():
             print(f"Running: {file}")
             etl_web_to_gcs(file_path)
             print(f"Done uploading {file} to GCS")
+
+    # Seq 5- Remove duplicate
+    duduplicate(file_path)
     print("All files are Uploaded")
 
 
