@@ -7,9 +7,7 @@ import os
 import json
 from pathlib import Path
 from urllib.request import urlretrieve
-from tqdm import tqdm
 from zipfile import ZipFile
-from google.cloud import bigquery
 from prefect import task, flow
 from prefect.tasks import task_input_hash
 from datetime import timedelta

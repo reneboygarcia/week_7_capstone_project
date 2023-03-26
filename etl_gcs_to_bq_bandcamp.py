@@ -69,7 +69,6 @@ def etl_gcs_to_bq(file_num: int):
             bigquery.SchemaField("duration_secs", "FLOAT", mode="NULLABLE"),
             bigquery.SchemaField("url", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("duration", "STRING", mode="NULLABLE"),
-            bigquery.SchemaField("recordingOf", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("isrcCode", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("byArtist_image", "STRING", mode="NULLABLE"),
             bigquery.SchemaField("byArtist_genre", "STRING", mode="NULLABLE"),
@@ -109,7 +108,6 @@ def etl_gcs_to_bq(file_num: int):
 
     destination_table = client.get_table(table_id)
     print(f"Loaded {destination_table.num_rows} rows.")
-
 
 # Parent flow ETL
 @flow(log_prints=True, name="etl-parent-to-bq")
